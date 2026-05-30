@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>面接壁打ちアプリ｜桑原里歩さん専用</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0e0e0f;
+  --bg2: #161618;
+  --bg3: #1e1e21;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0eff0;
+  --text2: #9b9aa0;
+  --text3: #5e5d64;
+  --accent: #6c63ff;
+  --accent2: #8b84ff;
+  --good: #34c98a;
+  --warn: #f5a623;
+  --danger: #ff5f5f;
+  --info: #5ba3f5;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.app-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.app-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text2);
+  letter-spacing: 0.04em;
+}
+.app-title span {
+  color: var(--accent2);
+  font-weight: 700;
+}
+.profile-chip {
+  font-size: 12px;
+  color: var(--text3);
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* Theme tabs */
+.theme-bar {
+  display: flex;
+  gap: 6px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.theme-bar::-webkit-scrollbar { display: none; }
+
+.theme-btn {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text2);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.theme-btn:hover { border-color: var(--border2); color: var(--text); }
+.theme-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 500;
+}
+
+/* Progress dots */
+.progress-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 10px 24px;
+  flex-shrink: 0;
+}
+.pdot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  transition: all 0.2s;
+}
+.pdot.done { background: var(--good); border-color: var(--good); }
+.pdot.current { background: var(--accent); border-color: var(--accent); width: 20px; border-radius: 4px; }
+.progress-label {
+  font-size: 11px;
+  color: var(--text3);
+  margin-left: 6px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* Main layout */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Chat area */
+.chat {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg3) transparent;
+}
+.chat::-webkit-scrollbar { width: 4px; }
+.chat::-webkit-scrollbar-track { background: transparent; }
+.chat::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+
+/* Messages */
+.msg { display: flex; flex-direction: column; gap: 4px; }
+.msg-label {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.06em;
+  padding: 0 4px;
+}
+.msg.user .msg-label { text-align: right; }
+
+.bubble {
+  max-width: 85%;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.75;
+  border-radius: var(--radius);
+}
+.msg.ai .bubble {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px var(--radius) var(--radius) var(--radius);
+  color: var(--text);
+  align-self: flex-start;
+}
+.msg.user .bubble {
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius) 4px var(--radius) var(--radius);
+  align-self: flex-end;
+}
+
+/* FBK card inside bubble */
+.fbk-block {
+  margin-top: 10px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.fbk-row {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.fbk-row:last-child { border-bottom: none; }
+.fbk-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  font-family: 'DM Mono', monospace;
+}
+.fbk-tag.good { background: rgba(52,201,138,0.15); color: var(--good); }
+.fbk-tag.warn { background: rgba(245,166,35,0.15); color: var(--warn); }
+.fbk-tag.danger { background: rgba(255,95,95,0.15); color: var(--danger); }
+.fbk-tag.info { background: rgba(91,163,245,0.15); color: var(--info); }
+
+/* Typing indicator */
+.typing-dots {
+  display: flex; gap: 5px; align-items: center;
+  padding: 14px 18px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px var(--radius) var(--radius) var(--radius);
+  width: fit-content;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--text3);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes pulse {
+  0%,80%,100% { transform: scale(0.7); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* Empty state */
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text3);
+  padding: 40px 0;
+}
+.empty-icon {
+  font-size: 36px;
+  opacity: 0.4;
+}
+.empty-text {
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.7;
+}
+.empty-theme {
+  font-size: 13px;
+  color: var(--accent2);
+  font-weight: 500;
+}
+
+/* Input area */
+.input-area {
+  padding: 16px 0 24px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.input-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+textarea {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 12px 16px;
+  resize: none;
+  min-height: 80px;
+  max-height: 200px;
+  transition: border-color 0.15s;
+  outline: none;
+}
+textarea:focus { border-color: var(--accent); }
+textarea::placeholder { color: var(--text3); }
+
+.send-btn {
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  color: #fff;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 20px;
+  height: 80px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.send-btn:hover { background: var(--accent2); }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.input-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.input-hint { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.reset-btn {
+  font-size: 11px; color: var(--text3);
+  background: none; border: none;
+  cursor: pointer; text-decoration: underline;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.reset-btn:hover { color: var(--text2); }
+
+/* Error */
+.error-bubble {
+  background: rgba(255,95,95,0.08);
+  border: 1px solid rgba(255,95,95,0.2);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--danger);
+}
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-title">面接壁打ちアプリ｜<span>桑原里歩</span>さん専用</div>
+  <div class="profile-chip">HR Force → 採用コンサル / ITセールス</div>
+</div>
+
+<div class="theme-bar" id="themeBar"></div>
+
+<div class="progress-bar" id="progressBar">
+  <div class="progress-label">進捗：</div>
+</div>
+
+<div class="main">
+  <div class="chat" id="chat"></div>
+  <div class="input-area">
+    <div class="input-row">
+      <textarea id="userInput" placeholder="回答をここに入力してください..." rows="3"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">送信</button>
+    </div>
+    <div class="input-meta">
+      <span class="input-hint">Enter で送信 / Shift+Enter で改行</span>
+      <button class="reset-btn" onclick="resetTheme()">このテーマをリセット</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PROFILE = `
+候補者：桑原里歩（27歳）
+学歴：金沢大学 人間社会学域国際学類卒（米Illinois College交換留学経験）
+志望職種：採用コンサル・ITセールス職
+
+【IS 2022年4月〜2023年6月】
+・BANTに基づく独自フォローリストを自作し、アポ獲得率1%台→2.2%に向上
+・全期間で目標達成率101〜105%を維持
+
+【FS 2023年7月〜2024年4月】
+・独自の失注分析表を作成。失注主因を「不要（必要性の未認知）」と特定
+・Why×3深掘り＋ヒアリングフォーマット自作で商談設計を刷新
+・異動後3ヶ月でチーム平均成約率24%に対し34%達成（+10%）
+
+【CS 2024年5月〜現在】
+・最大月額850万円の広告予算を担当
+・KGI→KPI逆算型の目線合わせ・改善PDCAを主導
+・社内運用担当との利害不一致を数字でKPI未達リスクを言語化し着地
+・チャーン率：チーム平均10〜12%に対し0〜8%をキープ
+・CSチーム10名中最多の紹介件数5社
+・2026年上期粗利1270万に対し4月末725万でオンスケ
+
+転職理由の素材：
+27歳を迎え、IS・FS・CS全工程を経験した今、同じ方向性・高い熱量の組織の中で
+20代の成長をさらに最大化したい。より高い次元で成果を出せる環境へ移りたい。
+`;
+
+const THEMES = [
+  {
+    id: 1, name: "① 転職理由",
+    system: `あなたは採用コンサル・ITセールス職の面接に精通したキャリアコーチです。
+候補者プロフィール：${PROFILE}
+
+【ゴール】転職理由が「逃げ」ではなく「なりたい姿から逆算した理由」として語れるよう鍛える。
+
+【最初の問いかけ】「では、転職理由を話してみてください。」から始める。
+
+【深掘り質問（状況に応じて使う）】
+・「そのキャリアビジョンを叶えるために、なぜ今転職なんですか？」
+・「現職で叶えるために、自分でどんなアクションをしましたか？」
+・「"成長したい"は現職でもできると思われませんか？」
+・「不満というより、得られるものは得た、という感覚ですか？」
+
+【FBK形式】毎回必ずこの構成で返す：
+---GOOD---
+（良い点を具体的に）
+---IMPROVE---
+（改善点を具体的に）
+---NG---
+（NGワード・表現があれば明示。なければ「なし」）
+---SAMPLE---
+（候補者の言葉を活かした改善後サンプル回答）
+---END---
+
+【NG基準】環境・他責表現／「成長したい」だけで中身なし／結論が後回し／冗長（2分超え相当）／現職への不満の吐き出し
+【植え付けたい印象】結論ファースト・構造化・具体と抽象を行き来・自己分析の深さ
+
+【サンプル回答を作る際の重要な制約】
+転職理由の回答で実績を語る場合、具体的な数字の羅列は自慢話に聞こえてNGです。
+実績は「IS・FS・CS全工程をやり切った」などの一言の総括にとどめ、
+数字の詳細は触れないこと。
+実績の詳細は⑤実績・再現性のテーマで深掘りするもの。
+転職理由では「なぜ今か・次で何をしたいか」の比重を8割にすること。
+サンプル回答の目安は150〜200文字以内。`
+  },
+  {
+    id: 2, name: "② キャリアビジョン",
+    system: `あなたは採用コンサル・ITセールス職の面接に精通したキャリアコーチです。
+候補者プロフィール：${PROFILE}
+
+【ゴール】3〜10年後の具体的ビジョンが描けており、転職理由・志望理由と一貫しているか確認する。
+
+【最初の問いかけ】「3年後、どんな状態でいたいか話してみてください。」から始める。
+
+【深掘り質問】
+・「10年後のゴールから逆算すると、なぜ今このポジションなんですか？」
+・「そのビジョンは、この会社じゃないと叶えられない理由はありますか？」
+・「IS・FS・CS全工程の経験は、そのビジョンにどう活きますか？」
+
+【FBK形式】毎回必ずこの構成で返す：
+---GOOD---
+（良い点）
+---IMPROVE---
+（改善点）
+---NG---
+（NGワード・表現。なければ「なし」）
+---SAMPLE---
+（改善後サンプル）
+---END---
+
+【植え付けたい印象】結論ファースト・構造化・具体と抽象を行き来・自己分析の深さ`
+  },
+  {
+    id: 3, name: "③ 転職軸",
+    system: `あなたは採用コンサル・ITセールス職の面接に精通したキャリアコーチです。
+候補者プロフィール：${PROFILE}
+
+【ゴール】転職理由の課題の解決策が軸になっているか。会社・仕事・組織の3軸で語れるか確認。
+
+【最初の問いかけ】「転職先を選ぶ上での軸を教えてください。」から始める。
+
+【深掘り質問】
+・「その中で優先順位をつけるとしたら？」
+・「なぜ今回の転職でその軸を特に重視するようになったんですか？」
+・「その軸に照らして、検討中の企業はどう映っていますか？」
+
+【FBK形式】毎回必ずこの構成で返す：
+---GOOD---
+---IMPROVE---
+---NG---
+---SAMPLE---
+---END---
+
+【植え付けたい印象】結論ファースト・構造化・具体と抽象を行き来`
+  },
+  {
+    id: 4, name: "④ 志望理由",
+    system: `あなたは採用コンサル・ITセールス職の面接に精通したキャリアコーチです。
+候補者プロフィール：${PROFILE}
+
+【ゴール】プロダクト・ビジネスモデルへの共感、カルチャーマッチの根拠、「なぜここか」が明確に語れるか確認。
+
+【最初の問いかけ】「この会社・このポジションへの志望理由を話してください。」から始める。
+
+【深掘り質問】
+・「このプロダクト・サービスのどこに共感しましたか？」
+・「カルチャーマッチと感じた根拠は何ですか？」
+・「競合他社ではなく、なぜここですか？」
+・「HR Forceでの経験とこのポジションの接続を聞かせてください。」
+
+【FBK形式】毎回必ずこの構成で返す：
+---GOOD---
+---IMPROVE---
+---NG---
+---SAMPLE---
+---END---
+
+【植え付けたい印象】結論ファースト・構造化・具体と抽象を行き来・プロダクトへの解像度`
+  },
+  {
+    id: 5, name: "⑤ 実績・再現性",
+    system: `あなたは採用コンサル・ITセールス職の面接に精通したキャリアコーチです。
+候補者プロフィール：${PROFILE}
+
+【ゴール】PREP法（結論→理由→具体例→再結論）とSTAR法（状況→課題→行動→結果）を意識した実績の語り方を鍛える。定量＋定性の両方が語れているか確認。
+
+【最初の問いかけ】「代表的な実績を1つ、PREP法を意識して話してください。」から始める。
+
+【深掘り質問】
+・「その結果、数字で言うとどのくらいの成果でしたか？」
+・「なぜあなたにそれができたと思いますか？（再現性の観点で）」
+・「チームではなく、あなた個人の貢献はどこですか？」
+・「その経験は採用コンサル・ITセールスでどう再現できますか？」
+・「IS・FS・CS全工程を経験した強みを一言で言い換えると？」
+
+【FBK形式】毎回必ずこの構成で返す：
+---GOOD---
+（良い点）
+---IMPROVE---
+（改善点）
+---NG---
+（NGワード・表現。なければ「なし」）
+---SAMPLE---
+（改善後サンプル）
+---END---
+
+【NG基準】「コミュニケーション能力が高い」などの主観的強みの言い切り／数字はあるがなぜできたかがない／抽象だけで具体エピソードがない／社内用語の多用
+【植え付けたい印象】結論ファースト・構造化・具体と抽象を行き来・再現性の担保`
+  }
+];
+
+let currentTheme = 0;
+let histories = THEMES.map(() => []);
+let isLoading = false;
+
+function init() {
+  const bar = document.getElementById('themeBar');
+  bar.innerHTML = THEMES.map((t, i) =>
+    `<button class="theme-btn ${i===0?'active':''}" onclick="setTheme(${i})">${t.name}</button>`
+  ).join('');
+  renderProgress();
+  renderEmpty();
+}
+
+function renderProgress() {
+  const bar = document.getElementById('progressBar');
+  bar.innerHTML = '<span class="progress-label">進捗：</span>' +
+    THEMES.map((t, i) => {
+      const done = histories[i].filter(m=>m.role==='user').length >= 3;
+      const cur = i === currentTheme;
+      return `<div class="pdot ${done?'done':cur?'current':''}" title="${t.name}"></div>`;
+    }).join('');
+}
+
+function setTheme(i) {
+  currentTheme = i;
+  document.querySelectorAll('.theme-btn').forEach((b, idx) => {
+    b.classList.toggle('active', idx === i);
+  });
+  renderProgress();
+  renderChat();
+  document.getElementById('userInput').placeholder = `【${THEMES[i].name}】の回答を入力...`;
+}
+
+function resetTheme() {
+  histories[currentTheme] = [];
+  renderProgress();
+  renderEmpty();
+}
+
+function renderEmpty() {
+  const chat = document.getElementById('chat');
+  chat.innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">💬</div>
+      <div class="empty-text">
+        <div class="empty-theme">${THEMES[currentTheme].name}</div>
+        回答を入力すると、コーチからの<br>深掘り質問とフィードバックが届きます
+      </div>
+    </div>`;
+}
+
+function renderChat() {
+  const history = histories[currentTheme];
+  if (history.length === 0) { renderEmpty(); return; }
+  const chat = document.getElementById('chat');
+  chat.innerHTML = history.map(m => {
+    if (m.role === 'user') {
+      return `<div class="msg user">
+        <div class="bubble">${esc(m.content)}</div>
+        <div class="msg-label">KUWABARA</div>
+      </div>`;
+    } else {
+      return `<div class="msg ai">
+        <div class="msg-label">COACH</div>
+        <div class="bubble">${formatAI(m.content)}</div>
+      </div>`;
+    }
+  }).join('');
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function formatAI(text) {
+  if (!text.includes('---GOOD---')) {
+    return `<div>${esc(text)}</div>`;
+  }
+  const parts = {
+    good: extract(text, 'GOOD', 'IMPROVE'),
+    improve: extract(text, 'IMPROVE', 'NG'),
+    ng: extract(text, 'NG', 'SAMPLE'),
+    sample: extract(text, 'SAMPLE', 'END')
+  };
+  const preText = text.split('---GOOD---')[0].trim();
+  let html = preText ? `<div style="margin-bottom:12px">${esc(preText)}</div>` : '';
+  html += `<div class="fbk-block">`;
+  if (parts.good && parts.good !== 'なし') html += `<div class="fbk-row"><div class="fbk-tag good">✅ 良い点</div><div>${esc(parts.good)}</div></div>`;
+  if (parts.improve && parts.improve !== 'なし') html += `<div class="fbk-row"><div class="fbk-tag warn">⚠️ 改善点</div><div>${esc(parts.improve)}</div></div>`;
+  if (parts.ng && parts.ng !== 'なし') html += `<div class="fbk-row"><div class="fbk-tag danger">🚫 NGワード</div><div>${esc(parts.ng)}</div></div>`;
+  if (parts.sample && parts.sample !== 'なし') html += `<div class="fbk-row"><div class="fbk-tag info">💡 改善サンプル</div><div>${esc(parts.sample)}</div></div>`;
+  html += `</div>`;
+  return html;
+}
+
+function extract(text, start, end) {
+  const s = text.indexOf(`---${start}---`);
+  const e = text.indexOf(`---${end}---`);
+  if (s === -1) return '';
+  const raw = e === -1 ? text.slice(s + start.length + 6) : text.slice(s + start.length + 6, e);
+  return raw.trim();
+}
+
+document.getElementById('userInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+async function sendMessage() {
+  if (isLoading) return;
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  histories[currentTheme].push({ role: 'user', content: text });
+
+  const chat = document.getElementById('chat');
+  if (histories[currentTheme].length === 1) chat.innerHTML = '';
+
+  chat.innerHTML += `<div class="msg user">
+    <div class="bubble">${esc(text)}</div>
+    <div class="msg-label">KUWABARA</div>
+  </div>`;
+
+  const typingId = 'typing_' + Date.now();
+  chat.innerHTML += `<div class="msg ai" id="${typingId}">
+    <div class="msg-label">COACH</div>
+    <div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  </div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  isLoading = true;
+  document.getElementById('sendBtn').disabled = true;
+
+  const messages = histories[currentTheme].map(m => ({ role: m.role, content: m.content }));
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: THEMES[currentTheme].system,
+        messages
+      })
+    });
+
+    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || 'エラーが発生しました。';
+
+    histories[currentTheme].push({ role: 'assistant', content: reply });
+
+    const typingEl = document.getElementById(typingId);
+    if (typingEl) {
+      typingEl.innerHTML = `<div class="msg-label">COACH</div><div class="bubble">${formatAI(reply)}</div>`;
+    }
+    chat.scrollTop = chat.scrollHeight;
+    renderProgress();
+
+  } catch(err) {
+    const typingEl = document.getElementById(typingId);
+    if (typingEl) {
+      typingEl.innerHTML = `<div class="msg-label">COACH</div><div class="error-bubble">エラーが発生しました。しばらくしてから再度お試しください。<br><small>${err.message}</small></div>`;
+    }
+  }
+
+  isLoading = false;
+  document.getElementById('sendBtn').disabled = false;
+}
+
+init();
+</script>
+</body>
+</html>
